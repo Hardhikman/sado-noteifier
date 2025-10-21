@@ -1,0 +1,165 @@
+# SaDo Noteifier
+
+A note-taking application with AI integration for summarization and smart features.
+
+## Features
+- Create, edit, and delete notes
+- AI-powered note summarization using Google Gemini
+- Smart notification reminders (hourly/daily) with end date scheduling
+- Push notifications via Firebase Cloud Messaging (FCM)
+- Google authentication through Supabase Auth
+- Responsive design with Tailwind CSS
+- Progressive Web App (PWA) support
+
+## Prerequisites
+- Python 3.8+
+- Node.js 14+
+- Supabase account
+- Firebase project for push notifications
+- Google AI API key for Gemini integration
+
+## Setup
+
+### Backend Setup
+1. Navigate to the backend directory:
+   ```bash
+   cd backend
+   ```
+
+2. Create a virtual environment and activate it:
+   ```bash
+   python -m venv new_venv
+   # On Windows
+   new_venv\Scripts\activate
+   # On macOS/Linux
+   source new_venv/bin/activate
+   ```
+
+3. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+4. Create a `.env` file with your configuration (see `.env.example` for reference):
+   ```bash
+   cp .env.example .env
+   # Edit .env with your Supabase URL, key, and Firebase project ID
+   ```
+
+5. Set up Google AI for Gemini integration:
+   - Obtain a Google AI API key from [Google AI Studio](https://aistudio.google.com/)
+   - Add `GOOGLE_API_KEY=your_api_key_here` to your backend `.env` file
+
+### Frontend Setup
+1. Create a `.env.local` file in the `frontend` directory with your configuration (see `frontend/.env.example` for reference):
+   ```bash
+   cd frontend
+   cp .env.example .env.local
+   # Edit .env.local with your Supabase credentials and Firebase config
+   ```
+
+2. Install frontend dependencies:
+   ```bash
+   cd frontend
+   npm install
+   ```
+
+### Database Setup
+1. Run the SQL scripts in the `backend/db` directory to set up the database tables:
+   - `users.sql`
+   - `notes.sql`
+   - `notifications.sql`
+
+### Firebase Setup
+1. Create a Firebase project at [Firebase Console](https://console.firebase.google.com/)
+2. Register your web app in Firebase to get the configuration values
+3. Enable Cloud Messaging in your Firebase project
+4. Generate a VAPID key for FCM:
+   - Go to Project Settings > Cloud Messaging
+   - Generate a new key pair for Web Push certificates
+5. Add the Firebase configuration to your frontend `.env.local`:
+   - `NEXT_PUBLIC_FIREBASE_API_KEY`
+   - `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN`
+   - `NEXT_PUBLIC_FIREBASE_PROJECT_ID`
+   - `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET`
+   - `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID`
+   - `NEXT_PUBLIC_FIREBASE_APP_ID`
+   - `NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID`
+   - `NEXT_PUBLIC_FIREBASE_VAPID_KEY` (the public VAPID key from step 4)
+6. Add your Firebase project ID to your backend `.env`:
+   - `FIREBASE_PROJECT_ID=your_firebase_project_id_here`
+7. For production, download the service account JSON file from Firebase:
+   - Go to Project Settings > Service accounts
+   - Generate a new private key
+   - Save it securely and reference it in your backend environment
+
+### Push Notification Setup
+The application now uses Firebase Cloud Messaging (FCM) instead of the traditional Web Push API. Follow the Firebase Setup instructions in the previous section.
+
+For development, Firebase can work without a service account key file, but for production you'll need to:
+1. Download the service account JSON file from Firebase Console
+2. Set the `GOOGLE_APPLICATION_CREDENTIALS` environment variable to point to this file, or
+3. Place the file in your backend directory and reference it in your code
+
+## Running the Application
+
+1. Start the backend:
+   ```bash
+   cd backend
+   set PYTHONPATH=.
+   python -m uvicorn ai_services.api.main:app --reload --host 0.0.0.0 --port 8000
+   ```
+
+2. In a separate terminal, start the frontend:
+   ```bash
+   cd frontend
+   npm run dev
+   ```
+
+## Using Push Notifications
+
+1. When creating or editing a note, select "Save with Notification"
+2. Choose hourly or daily reminders and set an end date
+3. Grant notification permissions when prompted
+4. The browser will automatically subscribe to Firebase Cloud Messaging
+5. When the scheduled time arrives, you'll receive a push notification
+6. Notifications include AI-generated summaries of your notes for better context
+
+## Testing Push Notifications
+
+To test the push notification functionality:
+
+1. Ensure you've set up Firebase as described above
+2. Open the application in a browser that supports push notifications (Chrome, Firefox, Edge)
+3. Create a note with notifications enabled
+4. Manually trigger a notification by calling the notification job endpoint or wait for the scheduled time
+5. For background notification support, ensure the service worker (`public/sw.js`) is properly configured and deployed
+
+## API Documentation
+Once the backend is running, visit `http://localhost:8000/swagger` for API documentation.
+
+### Key API Endpoints
+- `POST /auth/register` - User registration
+- `POST /auth/login` - User login
+- `POST /notes` - Create a new note
+- `POST /notes/notify` - Create a new note with notification
+- `GET /notes` - Get all notes for the authenticated user
+- `GET /notes/{id}` - Get a specific note by ID
+- `PUT /notes/{id}` - Update an existing note
+- `PUT /notes/{id}/notify` - Update an existing note with notification settings
+- `DELETE /notes/{id}` - Delete a note
+- `POST /notifications/subscribe` - Subscribe to FCM notifications
+- `POST /notifications/unsubscribe` - Unsubscribe from FCM notifications
+
+## Project Structure
+- `backend/` - FastAPI backend with Supabase integration
+  - `ai_services/` - AI-powered features using Google Gemini
+  - `core/` - Core services (Supabase client, note saver, push notifications)
+  - `api/` - API routes and authentication
+  - `db/` - Database schema files
+- `frontend/` - Next.js frontend with TypeScript and Tailwind CSS
+  - `components/` - Reusable UI components
+  - `hooks/` - Custom React hooks
+  - `pages/` - Next.js pages and API routes
+  - `public/` - Static assets and service worker
+  - `lib/` - Utility functions and Supabase client
