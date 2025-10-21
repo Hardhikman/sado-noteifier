@@ -135,6 +135,22 @@ To test the push notification functionality:
 4. Manually trigger a notification by calling the notification job endpoint or wait for the scheduled time
 5. For background notification support, ensure the service worker (`public/sw.js`) is properly configured and deployed
 
+## Deployment
+
+This application can be deployed to Vercel (frontend) and Render (backend). See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed instructions.
+
+### Quick Deployment Steps
+
+1. Set up your Supabase, Firebase, and Google AI accounts
+2. Configure environment variables as specified in `.env.production` files
+3. Deploy the frontend to Vercel (root directory: `/frontend`)
+4. Deploy the backend to Render (root directory: `/`)
+5. Update the frontend's `NEXT_PUBLIC_API_URL` to point to your Render backend
+
+For detailed deployment instructions, run:
+- On Windows: `DEPLOY.bat`
+- On macOS/Linux: `chmod +x DEPLOY.sh && ./DEPLOY.sh`
+
 ## API Documentation
 Once the backend is running, visit `http://localhost:8000/swagger` for API documentation.
 

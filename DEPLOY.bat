@@ -1,0 +1,37 @@
+@echo off
+title SaDo Noteifier Deployment Guide
+
+echo 🚀 SaDo Noteifier Deployment Guide
+echo ==================================
+echo.
+echo Follow these steps to deploy your application:
+echo.
+echo 1. Prerequisites Setup:
+echo    - Create a Supabase project
+echo    - Create a Firebase project
+echo    - Get your Google AI API key
+echo.
+echo 2. Frontend Deployment (Vercel):
+echo    - Go to https://vercel.com/dashboard
+echo    - Create a new project
+echo    - Connect your GitHub repository
+echo    - Set root directory to '/frontend'
+echo    - Add environment variables from frontend/.env.production
+echo    - Deploy!
+echo.
+echo 3. Backend Deployment (Render):
+echo    - Go to https://render.com/dashboard
+echo    - Create a new Web Service
+echo    - Connect your GitHub repository
+echo    - Set root directory to '/'
+echo    - Add environment variables from backend/.env.production
+echo    - Upload your Firebase service account JSON file
+echo    - Deploy!
+echo.
+echo 4. Post-Deployment:
+echo    - Update NEXT_PUBLIC_API_URL in Vercel to point to your Render backend
+echo    - Test the connection between frontend and backend
+echo.
+echo For detailed instructions, check the DEPLOYMENT.md file.
+echo.
+pause
