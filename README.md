@@ -2,6 +2,10 @@
 
 A note-taking application with AI integration for summarization and smart features.
 
+<img width="976" height="950" alt="Screenshot 2025-10-22 135805" src="https://github.com/user-attachments/assets/5f321a3c-f15b-4ec0-a096-3e1545f223ea" />
+
+<img width="1661" height="735" alt="image" src="https://github.com/user-attachments/assets/589509b1-d492-4f87-a240-4943d4a5f930" />
+
 ## Features
 - Create, edit, and delete notes
 - AI-powered note summarization using Google Gemini
