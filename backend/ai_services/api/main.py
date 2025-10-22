@@ -1,6 +1,8 @@
 # backend/ai_services/api/main.py
 
 import logging
+import os
+from dotenv import load_dotenv
 from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -9,6 +11,9 @@ from datetime import datetime
 from fastapi.openapi.docs import get_swagger_ui_html
 from fastapi.openapi.utils import get_openapi
 from fastapi.responses import JSONResponse
+
+# Load environment variables
+load_dotenv()
 
 # Local imports
 from .models import AuthSignUp, AuthSignIn, NoteSaveRequest
@@ -48,9 +53,12 @@ def root():
 # -----------------------------------
 # CORS
 # -----------------------------------
+# Get CORS origins from environment variable, default to localhost:3000
+cors_origins = os.getenv("CORS_ORIGINS", "http://localhost:3000").split(",")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

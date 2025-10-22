@@ -55,7 +55,7 @@ export default function HomePage() {
     <div className="min-h-screen relative overflow-hidden">
       {/* Blue Corner Glow Background */}
       <div
-        className="absolute inset-0 z-0"
+        className="absolute inset-0 z-5"
         style={{
           backgroundImage: `
             radial-gradient(circle 600px at 0% 0%, #bfdbfe, transparent),

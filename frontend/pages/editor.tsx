@@ -145,7 +145,7 @@ export default function EditorPage() {
     <div className="min-h-screen relative overflow-hidden">
       {/* Blue Corner Glow Background */}
       <div
-        className="absolute inset-0 z-0"
+        className="absolute inset-0 z-5"
         style={{
           backgroundImage: `
             radial-gradient(circle 600px at 0% 0%, #bfdbfe, transparent),
@@ -177,7 +177,7 @@ export default function EditorPage() {
           
           <Card className="flex-1 shadow-lg bg-white/80 backdrop-blur-sm border border-white/30 w-full">
             <CardHeader>
-              <CardTitle className="text-lg font-bold border-2 border-blue-500 rounded bg-blue-100 text-blue-800 whitespace-nowrap inline-block px-1.5 py-0.5 w-auto">
+              <CardTitle className="text-lg font-bold border-2 border-blue-500 rounded bg-blue-100 text-blue-800 whitespace-nowrap inline-block px-1 py-0.5 w-auto">
                 {noteId ? 'Edit Note' : 'Create New Note'}
               </CardTitle>
             </CardHeader>
