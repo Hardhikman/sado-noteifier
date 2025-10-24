@@ -5,14 +5,19 @@ import {
   DropdownMenu, 
   DropdownMenuContent, 
   DropdownMenuItem, 
+  DropdownMenuLabel, 
+  DropdownMenuSeparator, 
   DropdownMenuTrigger 
-} from "../components/retroui/DropdownMenu"
+} from "@/components/retroui/DropdownMenu"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/retroui/Card"
 import { Label } from "@/components/retroui/Label"
+import { Tooltip } from "@/components/retroui/Tooltip" // Add Tooltip import
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/retroui/Dialog"
 import { useAuth } from '../hooks/useAuth';
 import { useNotification } from '../hooks/useNotification';
 import { createNote, updateNote, getNoteById } from '../lib/api';
-import { ChevronDown, Save, Bell, ArrowLeft } from 'lucide-react';
+import { supabase } from '../lib/supabase';
+import { ChevronDown, Save, Bell, ArrowLeft, User, LogOut } from 'lucide-react';
 
 export default function EditorPage() {
   const router = useRouter();
@@ -28,11 +33,13 @@ export default function EditorPage() {
   const [content, setContent] = useState('');
   const [noteId, setNoteId] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false); // Add saving state
   const [notificationRequested, setNotificationRequested] = useState(false);
   const [notifyEndDate, setNotifyEndDate] = useState<string>(''); // Add end date state
   const [notifyTime, setNotifyTime] = useState<string>('09:00'); // Add time state with default 9:00 AM
   const [showDailyTimePicker, setShowDailyTimePicker] = useState(false); // State to show/hide daily time picker
   const [selectedReminderType, setSelectedReminderType] = useState<'hourly' | 'daily' | null>(null); // Track selected reminder type
+  const [showNotificationDialog, setShowNotificationDialog] = useState(false); // Add state for dialog
 
   // Load note data if we're editing an existing note
   useEffect(() => {
@@ -72,6 +79,9 @@ export default function EditorPage() {
       alert('Please select an end date for notifications');
       return;
     }
+    
+    // Set saving state to true to show loading message
+    setSaving(true);
     
     // Request notification permission if user wants to save with notification
     if (notify && supported && permission !== 'granted') {
@@ -123,10 +133,16 @@ export default function EditorPage() {
         await createNote(payload);
       }
       
+      // Show a message to the user that the note is being saved
+      alert('Note saved successfully! The AI summary will be generated shortly.');
+      
       router.push('/');
     } catch (error) {
       console.error('Error saving note:', error);
       alert('Failed to save note. Please try again.');
+    } finally {
+      // Reset saving state
+      setSaving(false);
     }
   }
 
@@ -143,220 +159,188 @@ export default function EditorPage() {
 
   return (
     <div className="min-h-screen relative overflow-hidden">
-      {/* Blue Corner Glow Background */}
-      <div
-        className="absolute inset-0 z-5"
-        style={{
-          backgroundImage: `
-            radial-gradient(circle 600px at 0% 0%, #bfdbfe, transparent),
-            radial-gradient(circle 600px at 100% 0%, #bfdbfe, transparent)
-          `,
-        }}
-      />
-      <header className="header flex items-center justify-between p-4 sm:p-6 bg-white/80 shadow-sm backdrop-blur-sm border-b border-white/20 relative z-10">
-        <div 
-          className="brand text-lg sm:text-xl font-bold text-gray-800 cursor-pointer hover:text-blue-600 transition-colors relative z-10"
-          onClick={() => router.push('/')}
-        >
-          SaDo Noteifier
-        </div>
-        <div className="header-right flex items-center gap-2 sm:gap-4 relative z-10">
-          <span className="text-xs sm:text-base text-gray-600 relative z-10 truncate max-w-[100px] sm:max-w-none">{user?.email}</span>
-        </div>
+      <header className="header fixed top-0 left-0 right-0 h-4 sm:h-6 bg-[#8b597b] shadow-sm backdrop-blur-sm border-b border-white/20 z-50">
       </header>
       
-      <div className="editor-shell max-w-4xl mx-auto p-3 sm:p-4 md:p-6">
+      <div className="editor-shell max-w-4xl mx-auto p-3 sm:p-4 md:p-6 mt-16 relative z-10">
         <div className="flex flex-col sm:flex-row items-start gap-3 sm:gap-4">
           {/* Intuitive arrow button to go back, positioned beside the card */}
           <button
             onClick={() => router.push('/')}
-            className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-600 hover:bg-gray-700 text-white flex items-center justify-center shadow-md z-20 transition-all duration-300 hover:scale-110 mt-0 sm:mt-2"
+            className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-[#efa3a0] hover:bg-[#e89290] text-white flex items-center justify-center shadow-md z-40 transition-all duration-300 hover:scale-110 mt-16 sm:mt-20"
           >
             <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5" />
           </button>
           
-          <Card className="flex-1 shadow-lg bg-white/80 backdrop-blur-sm border border-white/30 w-full">
-            <CardHeader>
-              <CardTitle className="text-lg font-bold border-2 border-blue-500 rounded bg-blue-100 text-blue-800 whitespace-nowrap inline-block px-1 py-0.5 w-auto">
-                {noteId ? 'Edit Note' : 'Create New Note'}
-              </CardTitle>
-            </CardHeader>
+          <Card className="flex-1 shadow-lg bg-white/80 backdrop-blur-sm border border-white/30 w-full mt-8">
             <CardContent className="space-y-4 sm:space-y-6">
+              {/* Save button inside the card, moved down */}
+              <div className="flex justify-end mt-4">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button className="flex items-center gap-1 bg-[#efa3a0] hover:bg-[#e89290] text-white px-3 py-1.5 text-sm">
+                      Save
+                      <ChevronDown className="h-3 w-3" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="flex flex-row w-auto p-1 min-w-[100px] mt-2 bg-white border-0 shadow-lg">
+                    <Tooltip.Provider>
+                      <Tooltip.Trigger asChild>
+                        <DropdownMenuItem 
+                          onClick={() => handleSave(false)}
+                          className="flex flex-col items-center justify-center gap-1 py-2 px-2 rounded hover:bg-gray-100"
+                        >
+                          <div className="flex items-center justify-center w-8 h-8 rounded-full bg-green-100 text-green-600">
+                            <Save className="h-4 w-4" />
+                          </div>
+                        </DropdownMenuItem>
+                      </Tooltip.Trigger>
+                      <Tooltip.Content>
+                        Save Only
+                      </Tooltip.Content>
+                    </Tooltip.Provider>
+                    
+                    <Tooltip.Provider>
+                      <Tooltip.Trigger asChild>
+                        <DropdownMenuItem 
+                          onClick={() => {
+                            // Show notification dialog when user selects "Notify"
+                            setShowNotificationDialog(true);
+                          }}
+                          className="flex flex-col items-center justify-center gap-1 py-2 px-2 rounded hover:bg-gray-100"
+                        >
+                          <div className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600">
+                            <Bell className="h-4 w-4" />
+                          </div>
+                        </DropdownMenuItem>
+                      </Tooltip.Trigger>
+                      <Tooltip.Content>
+                        Save with Notification
+                      </Tooltip.Content>
+                    </Tooltip.Provider>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+              
               <div className="space-y-2">
-                <Label htmlFor="title" className="text-sm sm:text-base font-medium">
-                  Title
-                </Label>
                 <input
                   id="title"
                   className="w-full p-3 sm:p-4 text-lg sm:text-xl md:text-2xl font-bold border border-gray-200 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/50 backdrop-blur-sm"
                   placeholder="Note Title"
                   value={title}
                   onChange={e => setTitle(e.target.value)}
+                  style={{ color: '#493129', fontFamily: "'Playwrite GB S', cursive" }}
                 />
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="content" className="text-sm sm:text-base font-medium">
-                  Note
-                </Label>
                 <textarea
                   id="content"
                   className="w-full h-64 sm:h-80 md:h-96 p-3 sm:p-4 text-sm sm:text-base md:text-lg border border-gray-200 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none bg-white/50 backdrop-blur-sm"
                   placeholder="Start writing your note here..."
                   value={content}
                   onChange={e => setContent(e.target.value)}
+                  style={{ color: '#493129', fontFamily: "'Playwrite GB S', cursive" }}
                 />
-              </div>
-              
-              {/* Notification End Date Input - removed from here since it's moved below the Save with Notification button */}
-              
-              {/* Time Picker for Daily Notifications - removed from here since it's moved below the Save with Notification button */}
-
-              <div className="flex flex-col gap-3 pt-4">
-                {/* Selection indicator */}
-                {selectedReminderType && (
-                  <div className="text-xs sm:text-sm text-gray-600 flex items-center gap-2">
-                    <div className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full ${selectedReminderType === 'hourly' ? 'bg-blue-500' : 'bg-purple-500'}`}></div>
-                    Selected: {selectedReminderType === 'hourly' ? 'Hourly Reminder' : 'Daily Reminder'}
-                  </div>
-                )}
-                
-                {/* Buttons container - consistent layout for all buttons */}
-                <div className="flex flex-col sm:flex-row gap-3">
-                  {/* Save Note button - always visible */}
-                  <Button 
-                    onClick={() => handleSave(false)}
-                    className="flex items-center gap-1 sm:gap-2 bg-green-600 hover:bg-green-700 text-white w-full sm:flex-1 px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base"
-                  >
-                    <Save className="h-3 w-3 sm:h-4 sm:w-4" />
-                    {noteId ? 'Update Note without Notification' : 'Save Note without Notification'}
-                  </Button>
-                  
-                  {/* Notification buttons - shown consistently */}
-                  <div className="flex flex-col gap-3 sm:flex-1">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="outline" className="flex items-center gap-1 sm:gap-2 bg-blue-600 hover:bg-blue-700 text-white w-full px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base"> 
-                          {noteId ? 'Update Note with Notification' : 'Save Note with Notification'}
-                          <ChevronDown className="h-3 w-3 sm:h-4 sm:w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="start" className="w-48 sm:w-64">
-                        <div className="p-2 text-xs sm:text-sm text-gray-500 border-b">Choose reminder frequency:</div>
-                        <DropdownMenuItem 
-                          onClick={() => {
-                            setSelectedReminderType('hourly');
-                          }}
-                          className={`flex items-center gap-2 sm:gap-3 py-2 sm:py-3 ${selectedReminderType === 'hourly' ? 'bg-blue-50' : ''}`}
-                        >
-                          <div className="flex items-center justify-center w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-blue-100 text-blue-600">
-                            <Bell className="h-3 w-3 sm:h-4 sm:w-4" />
-                          </div>
-                          <div className="flex flex-col">
-                            <span className="font-medium text-xs sm:text-sm">Hourly Reminder</span>
-                            <span className="text-xs text-gray-500">Every hour</span>
-                          </div>
-                          {selectedReminderType === 'hourly' && (
-                            <div className="ml-auto w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-blue-500 flex items-center justify-center">
-                              <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-white"></div>
-                            </div>
-                          )}
-                        </DropdownMenuItem>
-                        <DropdownMenuItem 
-                          onClick={() => {
-                            setSelectedReminderType('daily');
-                          }}
-                          className={`flex items-center gap-2 sm:gap-3 py-2 sm:py-3 ${selectedReminderType === 'daily' ? 'bg-purple-50' : ''}`}
-                        >
-                          <div className="flex items-center justify-center w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-purple-100 text-purple-600">
-                            <Bell className="h-3 w-3 sm:h-4 sm:w-4" />
-                          </div>
-                          <div className="flex flex-col">
-                            <span className="font-medium text-xs sm:text-sm">Daily Reminder</span>
-                            <span className="text-xs text-gray-500">Once per day</span>
-                          </div>
-                          {selectedReminderType === 'daily' && (
-                            <div className="ml-auto w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-purple-500 flex items-center justify-center">
-                              <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-white"></div>
-                            </div>
-                          )}
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-
-
-                    
-                    {/* Save with Hourly Notification button - only shown when hourly is selected */}
-                    {selectedReminderType === 'hourly' && (
-                      <div className="flex flex-col gap-3">
-                        <Button 
-                          onClick={() => handleSave(true, 'hourly')}
-                          className="flex items-center gap-1 sm:gap-2 bg-blue-600 hover:bg-blue-700 text-white w-full px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base"
-                        >
-                          <Bell className="h-3 w-3 sm:h-4 sm:w-4" />
-                          Save with Hourly Notification
-                        </Button>
-                      </div>
-                    )}
-
-                    {/* Save with Daily Notification button - only shown when daily is selected */}
-                    {selectedReminderType === 'daily' && (
-                      <div className="flex flex-col gap-3">
-                        <Button 
-                          onClick={() => handleSave(true, 'daily')}
-                          className="flex items-center gap-1 sm:gap-2 bg-purple-600 hover:bg-purple-700 text-white w-full px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base"
-                        >
-                          <Bell className="h-3 w-3 sm:h-4 sm:w-4" />
-                          Save with Daily Notification
-                        </Button>
-                      </div>
-                    )}
-                  </div>
-                </div>
-                
-                {/* Notification End Date Input - moved below the Save with Notification button */}
-                {selectedReminderType && (
-                  <div className="space-y-2 mt-3">
-                    <Label htmlFor="end-date" className="text-sm sm:text-base font-medium">
-                      Notification End Date *
-                    </Label>
-                    <input
-                      type="datetime-local"
-                      id="end-date"
-                      className="w-full p-2 sm:p-2.5 border border-gray-200 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
-                      value={notifyEndDate}
-                      onChange={e => setNotifyEndDate(e.target.value)}
-                      required
-                    />
-                    <p className="text-xs sm:text-sm text-gray-500">
-                      Notifications will automatically stop after this date and time. This field is required when notifications are enabled.
-                    </p>
-                  </div>
-                )}
-                
-                {/* Time picker for daily reminders - shown below the end date */}
-                {selectedReminderType === 'daily' && (
-                  <div className="space-y-2 mt-3">
-                    <Label htmlFor="notify-time" className="text-sm sm:text-base font-medium">
-                      Daily Reminder Time
-                    </Label>
-                    <input
-                      type="time"
-                      id="notify-time"
-                      className="w-full p-2 sm:p-2.5 border border-gray-200 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
-                      value={notifyTime}
-                      onChange={e => setNotifyTime(e.target.value)}
-                    />
-                    <p className="text-xs sm:text-sm text-gray-500">
-                      Set the time for your daily notifications (24-hour format). Default is 9:00 AM.
-                    </p>
-                  </div>
-                )}
               </div>
             </CardContent>
           </Card>
         </div>
       </div>
+      
+      {/* Saving indicator dialog */}
+      <Dialog open={saving} onOpenChange={setSaving}>
+        <DialogContent className="sm:max-w-md bg-[#8b597b] text-white backdrop-blur-sm">
+          <div className="flex flex-col items-center justify-center py-6">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mb-4"></div>
+            <h3 className="text-lg font-medium text-white mb-2">Saving Note</h3>
+            <p className="text-white/80 text-center">Please wait while your note is being saved...</p>
+          </div>
+        </DialogContent>
+      </Dialog>
+      
+      {/* Notification Settings Dialog */}
+      <Dialog open={showNotificationDialog} onOpenChange={setShowNotificationDialog}>
+        <DialogContent className="sm:max-w-md bg-[#8b597b] text-white backdrop-blur-sm">
+          <DialogHeader className="relative">
+            <DialogTitle className="text-white">Notification Settings</DialogTitle>
+            <button 
+              onClick={() => setShowNotificationDialog(false)}
+              className="absolute top-0 right-0 w-6 h-6 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition-colors"
+            >
+              <span className="text-white text-lg leading-none">&times;</span>
+            </button>
+          </DialogHeader>
+          <div className="space-y-4">
+            {/* Reminder type selection */}
+            <div className="flex gap-2">
+              <Button 
+                onClick={() => setSelectedReminderType('hourly')}
+                className={`flex-1 text-xs py-2 ${selectedReminderType === 'hourly' ? 'bg-blue-600 text-white' : 'bg-white/20 text-white'}`}
+              >
+                Hourly Reminder
+              </Button>
+              <Button 
+                onClick={() => setSelectedReminderType('daily')}
+                className={`flex-1 text-xs py-2 ${selectedReminderType === 'daily' ? 'bg-purple-600 text-white' : 'bg-white/20 text-white'}`}
+              >
+                Daily Reminder
+              </Button>
+            </div>
+            
+            {/* Notification End Date Input */}
+            <div className="space-y-2">
+              <Label htmlFor="end-date" className="text-xs font-medium text-white">
+                Notification End Date *
+              </Label>
+              <input
+                type="datetime-local"
+                id="end-date"
+                className="w-full p-2 border border-white/30 rounded-lg text-sm bg-white/10 text-white"
+                value={notifyEndDate}
+                onChange={e => setNotifyEndDate(e.target.value)}
+                required
+                style={{ fontFamily: "'Playwrite GB S', cursive" }}
+              />
+              <p className="text-xs text-white/80">
+                Notifications will automatically stop after this date and time.
+              </p>
+            </div>
+            
+            {/* Time picker for daily reminders */}
+            {selectedReminderType === 'daily' && (
+              <div className="space-y-2">
+                <Label htmlFor="notify-time" className="text-xs font-medium text-white">
+                  Daily Reminder Time
+                </Label>
+                <input
+                  type="time"
+                  id="notify-time"
+                  className="w-full p-2 border border-white/30 rounded-lg text-sm bg-white/10 text-white"
+                  value={notifyTime}
+                  onChange={e => setNotifyTime(e.target.value)}
+                  style={{ fontFamily: "'Playwrite GB S', cursive" }}
+                />
+                <p className="text-xs text-white/80">
+                  Default is 9:00 AM.
+                </p>
+              </div>
+            )}
+            
+            {/* Save with notification button */}
+            <Button 
+              onClick={() => {
+                handleSave(true, selectedReminderType);
+                setShowNotificationDialog(false); // Close dialog after saving
+              }}
+              className="w-full flex items-center justify-center gap-2 bg-[#efa3a0] hover:bg-[#e89290] text-white py-2 text-sm"
+            >
+              <Bell className="h-4 w-4" />
+              Save with {selectedReminderType === 'hourly' ? 'Hourly' : 'Daily'} Notification
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -25,14 +25,14 @@ export default function App({ Component, pageProps }: AppProps) {
         <title>SaDo Noteifier</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <link rel="manifest" href="/manifest.json" />
-        <meta name="theme-color" content="#3b82f6" />
+        <meta name="theme-color" content="#493129" />
       </Head>
       <div className="min-h-screen w-full relative">
-        {/* Ocean Breeze Fade Gradient */}
+        {/* Solid background color */}
         <div
           className="absolute inset-0 z-0"
           style={{
-            background: `linear-gradient(225deg, #B3E5FC 0%, #E0F2F1 25%, #F0F4C3 50%, #FFF8E1 75%, #FFECB3 100%)`,
+            background: `#ffeedb`,
           }}
         />
         <div className="relative z-10">

@@ -2,6 +2,7 @@
 from typing import Optional, Dict, Any
 from datetime import datetime
 import logging
+from threading import Thread
 from .supabase_client import client
 from dotenv import load_dotenv
 import os
@@ -83,6 +84,25 @@ def _now_iso():
     return datetime.utcnow().isoformat()
 
 
+def update_note_summary_async(note_id: int, content: str):
+    """Asynchronously update note summary using AI."""
+    try:
+        summary = summarize_note_content(content)
+        # Update the note with the generated summary
+        payload = {"summary": summary}
+        client.table(NOTES_TABLE).update(payload).eq("id", note_id).execute()
+        logger.info(f"Successfully updated summary for note {note_id}")
+    except Exception as e:
+        logger.error(f"Failed to update summary for note {note_id}: {e}")
+        # Update with a fallback summary
+        try:
+            fallback_summary = content[:200] + "..." if len(content) > 200 else content
+            payload = {"summary": fallback_summary}
+            client.table(NOTES_TABLE).update(payload).eq("id", note_id).execute()
+        except Exception as fallback_error:
+            logger.error(f"Failed to update fallback summary for note {note_id}: {fallback_error}")
+
+
 def summarize_note_content(content: str) -> str:
     """Use Gemini via LangChain to summarize a note."""
     if not content or not content.strip():
@@ -113,12 +133,9 @@ def summarize_note_content(content: str) -> str:
 
 
 def save_note(user_id: str, title: str, content: str, metadata: Optional[Dict[str, Any]] = None) -> Dict:
-    """Save a note to Supabase, with AI-generated summary included."""
-    try:
-        summary = summarize_note_content(content)
-    except Exception as e:
-        logger.error(f"Failed to generate summary, using default: {e}")
-        summary = "Note summary could not be generated."
+    """Save a note to Supabase, with placeholder summary included."""
+    # Use placeholder summary to avoid blocking the save operation
+    summary = "Summary will be generated shortly..."
     
     payload = {
         "user_id": user_id,
@@ -141,6 +158,12 @@ def save_note(user_id: str, title: str, content: str, metadata: Optional[Dict[st
             raise RuntimeError(f"Database error: {error}")
         data = getattr(res, 'data', res.get('data') if isinstance(res, dict) else None) if res else None
         result = data[0] if data and isinstance(data, list) and len(data) > 0 else data if isinstance(data, dict) else None
+        
+        # Generate AI summary asynchronously after saving
+        if result and result.get('id'):
+            thread = Thread(target=update_note_summary_async, args=(result['id'], content))
+            thread.start()
+        
         return result if result is not None else {}
     except Exception as e:
         logger.error("Exception during note insertion: %s", str(e))
@@ -194,12 +217,9 @@ def save_note_with_notification(
 
 
 def update_note(user_id: str, note_id: int, title: str, content: str, metadata: Optional[Dict[str, Any]] = None) -> Dict:
-    """Update an existing note in Supabase, with AI-generated summary included."""
-    try:
-        summary = summarize_note_content(content)
-    except Exception as e:
-        logger.error(f"Failed to generate summary, using default: {e}")
-        summary = "Note summary could not be generated."
+    """Update an existing note in Supabase, with placeholder summary included."""
+    # Use placeholder summary to avoid blocking the update operation
+    summary = "Summary will be updated shortly..."
     
     payload = {
         "title": title or "Untitled Note",
@@ -220,6 +240,12 @@ def update_note(user_id: str, note_id: int, title: str, content: str, metadata: 
             raise RuntimeError(f"Database error: {error}")
         data = getattr(res, 'data', res.get('data') if isinstance(res, dict) else None) if res else None
         result = data[0] if data and isinstance(data, list) and len(data) > 0 else data if isinstance(data, dict) else None
+        
+        # Generate AI summary asynchronously after updating
+        if result:
+            thread = Thread(target=update_note_summary_async, args=(note_id, content))
+            thread.start()
+        
         return result if result is not None else {}
     except Exception as e:
         logger.error("Exception during note update: %s", str(e))

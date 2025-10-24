@@ -2,9 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+@import url('https://fonts.googleapis.com/css2?family=Playwrite+GB+S:ital,wght@0,100..400;1,100..400&display=swap');
+
 :root {
-  --background: 0 0% 100%;
-  --foreground: 222.2 47.4% 11.2%;
+  --background: 24.0 78.6% 92.5%;
+  --foreground: 24.0 78.6% 15.0%;
   --muted: 210 40% 96.1%;
   --muted-foreground: 215.4 16.3% 46.9%;
   --popover: 0 0% 100%;
@@ -13,8 +15,8 @@
   --card-foreground: 222.2 47.4% 11.2%;
   --border: 214.3 31.8% 91.4%;
   --input: 214.3 31.8% 91.4%;
-  --primary: 222.2 47.4% 11.2%;
-  --primary-foreground: 210 40% 98%;
+  --primary: 11.0 70.0% 78.0%;
+  --primary-foreground: 0 0% 0%;
   --secondary: 210 40% 96.1%;
   --secondary-foreground: 222.2 47.4% 11.2%;
   --accent: 210 40% 96.1%;
@@ -37,8 +39,8 @@
   --card-foreground: 213 31% 91%;
   --border: 216 34% 17%;
   --input: 216 34% 17%;
-  --primary: 210 40% 98%;
-  --primary-foreground: 222.2 47.4% 1.2%;
+  --primary: 11.0 70.0% 78.0%;
+  --primary-foreground: 0 0% 0%;
   --secondary: 222.2 47.4% 11.2%;
   --secondary-foreground: 210 40% 98%;
   --accent: 216 34% 17%;
@@ -54,6 +56,7 @@ body {
   background-color: hsl(var(--background));
   color: hsl(var(--foreground));
   font-feature-settings: "rlig" 1, "calt" 1;
+  font-family: 'Playwrite GB S', cursive;
 }
 
 /* Enhanced button hover effects */
@@ -124,6 +127,8 @@ body {
   border-radius: 0.375rem;
   padding: 0.75rem;
   margin-bottom: 1rem;
+  color: #493129; /* Set text color for note title */
+  font-family: 'Playwrite GB S', cursive;
 }
 
 .content-input {
@@ -133,22 +138,18 @@ body {
   padding: 0.75rem;
   margin-bottom: 1rem;
   resize: vertical;
+  color: #493129; /* Set text color for note content */
+  font-family: 'Playwrite GB S', cursive;
 }
 
-@media (min-width: 640px) {
-  .editor-shell {
-    padding: 1.5rem;
-  }
-  
-  .title-input {
-    font-size: 1.875rem;
-    padding: 1rem;
-  }
-  
-  .content-input {
-    min-height: 28rem;
-    padding: 1rem;
-  }
+/* Ensure all text elements use the specified color */
+h1, h2, h3, h4, h5, h6, p, span, div, textarea, input, button, label, select {
+  color: #493129;
+  font-family: 'Playwrite GB S', cursive;
+}
+
+.brand:hover {
+  color: #4a5568 !important; /* Keep the original gray color instead of blue */
 }
 
 /* Index page styles */

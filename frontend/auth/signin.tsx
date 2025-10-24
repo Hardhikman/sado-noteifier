@@ -44,16 +44,6 @@ export default function SignInForm() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-3 sm:p-4 relative overflow-hidden">
-      {/* Blue Corner Glow Background */}
-      <div
-        className="absolute inset-0 z-5"
-        style={{
-          backgroundImage: `
-            radial-gradient(circle 600px at 0% 0%, #bfdbfe, transparent),
-            radial-gradient(circle 600px at 100% 0%, #bfdbfe, transparent)
-          `,
-        }}
-      />
       <Card className="w-full max-w-md bg-white/80 backdrop-blur-sm border border-white/30 shadow-lg relative z-10">
         <CardHeader className="text-center px-4 sm:px-6 py-4 sm:py-6">
           <CardTitle className="text-xl sm:text-2xl font-bold">Welcome to SaDo AI Note</CardTitle>
@@ -70,7 +60,7 @@ export default function SignInForm() {
           
           {/* Google Sign In Button */}
           <Button 
-            className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white py-2.5 sm:py-3" 
+            className="w-full flex items-center justify-center gap-2 bg-[#efa3a0] hover:bg-[#e89290] text-white py-2.5 sm:py-3" 
             variant="default"
             onClick={handleGoogleSignIn}
           >
