@@ -13,7 +13,6 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
 lib64/
 parts/
 sdist/
@@ -76,3 +75,6 @@ backend/new_venv/
 backend/.env
 *.env
 firebase-service-account.json
+
+# Include frontend lib folder
+!frontend/lib/
