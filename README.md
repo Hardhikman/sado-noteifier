@@ -1,6 +1,10 @@
 # SaDo Noteifier
 
-A note-taking application with AI integration for summarization and smart features.
+A Note + Notiifcaton AI webapp
+
+<img width="335" height="353" alt="Screenshot 2025-10-22 140114" src="https://github.com/user-attachments/assets/f8f5ae10-63c9-4873-abbb-c85bac595f8c" />
+<img width="1915" height="981" alt="Screenshot 2025-10-22 133310" src="https://github.com/user-attachments/assets/4d0a2e5a-01ca-426f-a5fb-f0a34ce6bca1" />
+<img width="976" height="950" alt="Screenshot 2025-10-22 135805" src="https://github.com/user-attachments/assets/5f321a3c-f15b-4ec0-a096-3e1545f223ea" />
 
 ## Features
 - Create, edit, and delete notes
