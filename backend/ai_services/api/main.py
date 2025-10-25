@@ -54,7 +54,13 @@ def root():
 # CORS
 # -----------------------------------
 # Get CORS origins from environment variable, default to localhost:3000
-cors_origins = os.getenv("CORS_ORIGINS", "http://localhost:3000").split(",")
+# Support multiple origins including Vercel deployments
+cors_origins = os.getenv("CORS_ORIGINS", "http://localhost:3000,http://localhost:3001,https://your-frontend.vercel.app").split(",")
+# Also allow any vercel.app subdomain for easier deployment
+cors_origins.extend([
+    "https://*.vercel.app",
+    "https://*.vercel.com"
+])
 
 app.add_middleware(
     CORSMiddleware,
@@ -62,6 +68,7 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    allow_origin_regex="https://.*\.vercel\.app",  # Allow all Vercel preview deployments
 )
 
 # -----------------------------------
