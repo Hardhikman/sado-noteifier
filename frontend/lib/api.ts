@@ -187,3 +187,37 @@ export async function deleteNote(noteId: number) {
     throw error;
   }
 }
+
+/**
+ * Subscribe to push notifications
+ * @param {string} fcmToken - The FCM token to subscribe
+ * @returns {Promise<Object>} The response data
+ */
+export async function subscribeToNotifications(fcmToken: string) {
+  try {
+    const response = await apiClient.post('/notifications/subscribe', {
+      fcm_token: fcmToken
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error subscribing to notifications:', error);
+    throw error;
+  }
+}
+
+/**
+ * Unsubscribe from push notifications
+ * @param {string} fcmToken - The FCM token to unsubscribe
+ * @returns {Promise<Object>} The response data
+ */
+export async function unsubscribeFromNotifications(fcmToken: string) {
+  try {
+    const response = await apiClient.post('/notifications/unsubscribe', {
+      fcm_token: fcmToken
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error unsubscribing from notifications:', error);
+    throw error;
+  }
+}

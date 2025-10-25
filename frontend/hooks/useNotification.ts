@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { messaging } from '../lib/firebase';
 import { getToken, onMessage, isSupported } from 'firebase/messaging';
+import { subscribeToNotifications, unsubscribeFromNotifications } from '../lib/api';
 
 export function useNotification() {
   const [permission, setPermission] = useState<NotificationPermission>('default');
@@ -116,20 +117,8 @@ export function useNotification() {
         throw new Error('User not authenticated');
       }
 
-      const response = await fetch('/api/notifications/subscribe', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`
-        },
-        body: JSON.stringify({
-          fcm_token: fcmToken
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to save subscription');
-      }
+      // Use the backend API instead of the Next.js API route
+      await subscribeToNotifications(fcmToken);
     } catch (error) {
       console.error('Error saving subscription:', error);
       throw error;
@@ -143,20 +132,8 @@ export function useNotification() {
         throw new Error('User not authenticated');
       }
 
-      const response = await fetch('/api/notifications/unsubscribe', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`
-        },
-        body: JSON.stringify({
-          fcm_token: fcmToken
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to remove subscription');
-      }
+      // Use the backend API instead of the Next.js API route
+      await unsubscribeFromNotifications(fcmToken);
     } catch (error) {
       console.error('Error removing subscription:', error);
       throw error;
