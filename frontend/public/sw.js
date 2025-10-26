@@ -1,4 +1,4 @@
-// Service Worker for Firebase Cloud Messaging
+// Main Service Worker for the application
 
 self.addEventListener('install', (event) => {
   console.log('[Service Worker] Installing...');
@@ -8,15 +8,6 @@ self.addEventListener('install', (event) => {
 self.addEventListener('activate', (event) => {
   console.log('[Service Worker] Activated');
   event.waitUntil(self.clients.claim());
-});
-
-// Handle background messages - FCM will automatically handle this
-// We don't need to manually initialize Firebase in the service worker
-// The client-side code handles FCM initialization
-
-self.addEventListener('push', (event) => {
-  console.log('[Service Worker] Push event received:', event);
-  // FCM should handle this automatically, but we log it for debugging
 });
 
 // Handle notification clicks
@@ -41,6 +32,24 @@ self.addEventListener('notificationclick', (event) => {
   );
 });
 
-// Firebase Cloud Messaging will automatically handle push events
-// We don't need to manually handle the 'push' event when using FCM
-console.log('[Service Worker] Loaded and ready to handle FCM messages');
+// Handle push events
+self.addEventListener('push', (event) => {
+  console.log('[Service Worker] Push event received:', event);
+  
+  if (event.data) {
+    const data = event.data.json();
+    console.log('[Service Worker] Push data:', data);
+    
+    const title = data.notification?.title || 'New Notification';
+    const options = {
+      body: data.notification?.body || '',
+      icon: data.notification?.icon || '/icon-192x192.png',
+      badge: '/icon-192x192.png',
+      data: data.data || {}
+    };
+    
+    event.waitUntil(self.registration.showNotification(title, options));
+  }
+});
+
+console.log('[Service Worker] Main service worker loaded and ready');

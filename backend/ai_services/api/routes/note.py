@@ -75,8 +75,11 @@ def send_notification_job(user_id: str, note_id: int):
             body = f"Reminder for note: {note.get('title') if note else note_id}"
         # Import here to avoid circular imports
         from ai_services.core.push_notifications import send_push_notification
-        send_push_notification(user_id, title, body, f"/editor?id={note_id}")
-        logger.info(f"[NOTIFY] Sent push notification to user {user_id} about note: {note.get('title') if note else note_id}")
+        success = send_push_notification(user_id, title, body, f"/editor?id={note_id}")
+        if success:
+            logger.info(f"[NOTIFY] Sent push notification to user {user_id} about note: {note.get('title') if note else note_id}")
+        else:
+            logger.warning(f"[NOTIFY] Failed to send push notification to user {user_id} about note: {note.get('title') if note else note_id}")
     else:
         logger.info(f"[NOTIFY] Notify user {user_id} about note: {note_id}")
 

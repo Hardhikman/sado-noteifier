@@ -219,28 +219,13 @@ export async function deleteNote(noteId: number) {
 export async function subscribeToNotifications(fcmToken: string) {
   try {
     console.log('Subscribing to notifications with FCM token:', fcmToken.substring(0, 20) + '...');
-    console.log('FCM token length:', fcmToken.length);
-    
-    if (!fcmToken || fcmToken.length < 10) {
-      const error = new Error('Invalid FCM token');
-      console.error('Invalid FCM token provided:', fcmToken);
-      throw error;
-    }
-    
     const response = await apiClient.post('/notifications/subscribe', {
       fcm_token: fcmToken
     });
     console.log('Subscription response:', response.data);
     return response.data;
-  } catch (error: any) {
+  } catch (error) {
     console.error('Error subscribing to notifications:', error.response?.data || error.message);
-    console.error('Error details:', {
-      status: error.response?.status,
-      statusText: error.response?.statusText,
-      data: error.response?.data,
-      message: error.message,
-      stack: error.stack
-    });
     throw error;
   }
 }

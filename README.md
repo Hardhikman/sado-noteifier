@@ -22,6 +22,10 @@ A Note + Notiifcaton AI webapp
 - Firebase project for push notifications
 - Google AI API key for Gemini integration
 
+## Security Notice for Public Repositories
+
+⚠️ **Important**: This repository contains example configuration files. Never commit actual credentials to version control. Always use environment variables and add sensitive files to `.gitignore`.
+
 ## Setup
 
 ### Backend Setup
@@ -44,10 +48,10 @@ A Note + Notiifcaton AI webapp
    pip install -r requirements.txt
    ```
 
-4. Create a `.env` file with your configuration (see `.env.example` for reference):
+4. Create a `.env` file with your configuration:
    ```bash
    cp .env.example .env
-   # Edit .env with your Supabase URL, key, and Firebase project ID
+   # Edit .env with your actual credentials (never commit this file)
    ```
 
 5. Set up Google AI for Gemini integration:
@@ -55,11 +59,11 @@ A Note + Notiifcaton AI webapp
    - Add `GOOGLE_API_KEY=your_api_key_here` to your backend `.env` file
 
 ### Frontend Setup
-1. Create a `.env.local` file in the `frontend` directory with your configuration (see `frontend/.env.example` for reference):
+1. Create a `.env.local` file in the `frontend` directory:
    ```bash
    cd frontend
    cp .env.example .env.local
-   # Edit .env.local with your Supabase credentials and Firebase config
+   # Edit .env.local with your actual credentials (never commit this file)
    ```
 
 2. Install frontend dependencies:
@@ -67,6 +71,22 @@ A Note + Notiifcaton AI webapp
    cd frontend
    npm install
    ```
+
+### Environment Variables
+
+For security, this project uses environment variables for all sensitive configuration. The `.env.example` files show what variables are needed:
+
+**Frontend** (in `frontend/.env.local`):
+- Firebase configuration for client-side initialization
+- Supabase credentials
+- API endpoint URLs
+
+**Backend** (in `backend/.env`):
+- Firebase service account credentials (use `FIREBASE_SERVICE_ACCOUNT_KEY` with JSON content)
+- Supabase service role key
+- Google AI API key
+
+Never commit your actual `.env` or `.env.local` files to version control. The `.gitignore` file is configured to prevent this.
 
 ### Database Setup
 1. Run the SQL scripts in the `backend/db` directory to set up the database tables:
@@ -95,15 +115,13 @@ A Note + Notiifcaton AI webapp
 7. For production, download the service account JSON file from Firebase:
    - Go to Project Settings > Service accounts
    - Generate a new private key
-   - Save it securely and reference it in your backend environment
+   - For security, convert the JSON content to an environment variable:
+     - `FIREBASE_SERVICE_ACCOUNT_KEY={"type":"service_account",...}`
 
 ### Push Notification Setup
 The application now uses Firebase Cloud Messaging (FCM) instead of the traditional Web Push API. Follow the Firebase Setup instructions in the previous section.
 
-For development, Firebase can work without a service account key file, but for production you'll need to:
-1. Download the service account JSON file from Firebase Console
-2. Set the `GOOGLE_APPLICATION_CREDENTIALS` environment variable to point to this file, or
-3. Place the file in your backend directory and reference it in your code
+For production deployments, use the `FIREBASE_SERVICE_ACCOUNT_KEY` environment variable with the complete JSON content instead of file paths. This follows the 12-factor app methodology and is more secure for cloud deployments.
 
 ## Running the Application
 
