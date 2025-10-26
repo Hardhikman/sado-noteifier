@@ -142,7 +142,7 @@ export default function EditorPage() {
       }
       
       // Show a message to the user that the note is being saved
-      alert('Note saved successfully! The AI summary will be generated shortly.');
+      alert('Note saved successfully! The AI reminder will be generated shortly.');
       
       router.push('/');
     } catch (error) {
