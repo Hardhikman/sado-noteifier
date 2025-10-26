@@ -102,9 +102,17 @@ export default function EditorPage() {
     // Subscribe to FCM notifications if needed
     if (notify && pushSupported) {
       try {
+        console.log('Attempting to subscribe to FCM notifications...');
+        console.log('Push supported:', pushSupported);
         await subscribeToPush();
+        console.log('FCM subscription completed');
       } catch (error) {
         console.error('Error subscribing to FCM notifications:', error);
+        console.error('Error details:', {
+          name: error.name,
+          message: error.message,
+          stack: error.stack
+        });
         // Continue anyway as we can still use local notifications
       }
     }
