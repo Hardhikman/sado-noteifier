@@ -44,17 +44,17 @@ export default function SignUpForm() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-3 sm:p-4 relative overflow-hidden">
-      <Card className="w-full max-w-md bg-white/80 backdrop-blur-sm border border-white/30 shadow-lg relative z-10">
+      <Card className="w-auto max-w-md bg-white/80 backdrop-blur-sm border border-white/30 shadow-lg relative z-10 mx-auto">
         <CardHeader className="text-center px-4 sm:px-6 py-4 sm:py-6">
           <CardTitle className="text-xl sm:text-2xl font-bold">Create SaDo Account</CardTitle>
           <CardDescription className="text-sm sm:text-base mt-2">
-            Get started with SaDo AI Note
+            Get started with SaDo AI Noteifier
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4 sm:space-y-6 px-4 sm:px-6 py-4 sm:py-6">
           {/* Google Sign Up Button */}
           <Button 
-            className="w-full flex items-center justify-center gap-2 bg-[#efa3a0] hover:bg-[#e89290] text-white py-2.5 sm:py-3"
+            className="flex items-center justify-center gap-2 bg-[#efa3a0] hover:bg-[#e89290] text-white py-2 sm:py-2.5 px-4 sm:px-6 mx-auto"
             variant="default"
             onClick={handleGoogleSignUp}
           >

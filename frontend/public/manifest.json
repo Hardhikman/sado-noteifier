@@ -1,7 +1,7 @@
 {
-  "name": "SaDo Noteifier",
+  "name": "SaDo AI Noteifier",
   "short_name": "SaDo",
-  "description": "A smart note-taking app with AI integration",
+  "description": "A smart note+notify app with AI",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",

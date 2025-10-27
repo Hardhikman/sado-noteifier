@@ -1,95 +1,73 @@
-// Firebase Messaging Service Worker
-// This file is required for Firebase Cloud Messaging to work properly
+// firebase-messaging-sw.js
 
-// Import Firebase scripts
+// Import Firebase scripts (your versions are fine)
 importScripts('https://www.gstatic.com/firebasejs/9.1.3/firebase-app-compat.js');
 importScripts('https://www.gstatic.com/firebasejs/9.1.3/firebase-messaging-compat.js');
 
-// Default Firebase configuration (will be overridden by messages from the main app)
-let firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "your-project.firebaseapp.com",
-  projectId: "your-project-id",
-  storageBucket: "your-project.appspot.com",
-  messagingSenderId: "1234567890",
-  appId: "1:1234567890:web:abcd1234",
-  measurementId: "G-XXXXXXXXXX"
+// --- CRITICAL FIX ---1. Add your real Firebase config here.This MUST be hardcoded.
+const firebaseConfig = {
+  apiKey: "AIzaSyBH_IpUH6iDqVEcUinUw6pgzDkgVPBBtxc",
+  authDomain: "sa-do-9c91e.firebaseapp.com",
+  projectId: "sa-do-9c91e",
+  storageBucket: "sa-do-9c91e.appspot.com",
+  messagingSenderId: "362095722321",
+  appId: "1:362095722321:web:2126ab124ade004082c60b"
 };
 
-// Listen for configuration message from the main app
-self.addEventListener('message', function(event) {
-  if (event.data && event.data.type === 'FIREBASE_CONFIG') {
-    console.log('[firebase-messaging-sw.js] Received Firebase config from main app');
-    firebaseConfig = event.data.config;
-    initializeFirebase();
-  }
-});
+// --- CRITICAL FIX --- 2. Initialize Firebase immediately when the worker starts.Do NOT wait for a message from the main app.
+try {
+  const firebaseApp = firebase.initializeApp(firebaseConfig);
+  const messaging = firebase.messaging(firebaseApp);
 
-// Initialize Firebase with the provided configuration
-let firebaseApp;
-let messaging;
+  console.log('[firebase-messaging-sw.js] Firebase initialized immediately.');
 
-function initializeFirebase() {
-  try {
-    // Clean up existing app if it exists
-    if (firebaseApp) {
-      firebaseApp.delete().then(() => {
-        firebaseApp = firebase.initializeApp(firebaseConfig);
-        messaging = firebase.messaging(firebaseApp);
-        console.log('[firebase-messaging-sw.js] Firebase reinitialized with new config');
-      });
-    } else {
-      firebaseApp = firebase.initializeApp(firebaseConfig);
-      messaging = firebase.messaging(firebaseApp);
-      console.log('[firebase-messaging-sw.js] Firebase initialized with config');
-    }
+  // Set up background message handler
+  messaging.onBackgroundMessage(function(payload) {
+    console.log('[firebase-messaging-sw.js] Received background message ', payload);
+
+    // Get the title and options from the payload
+    // This handles both "notification" and "data" payloads
+    const notificationTitle = payload.notification ? payload.notification.title : (payload.data ? payload.data.title : 'New Message');
     
-    // Set up background message handler
-    if (messaging) {
-      messaging.onBackgroundMessage(function(payload) {
-        console.log('[firebase-messaging-sw.js] Received background message ', payload);
-        
-        // Customize notification here
-        const notificationTitle = payload.notification.title;
-        const notificationOptions = {
-          body: payload.notification.body,
-          icon: payload.notification.icon,
-          data: payload.data
-        };
+    const notificationOptions = {
+      body: payload.notification ? payload.notification.body : (payload.data ? payload.data.body : 'You have a new update.'),
+      icon: payload.notification ? payload.notification.icon : (payload.data ? payload.data.icon : '/default-icon.png'),
+      data: payload.data // Pass along data for click handling
+    };
 
-        return self.registration.showNotification(notificationTitle, notificationOptions);
-      });
-    }
-  } catch (error) {
-    console.error('[firebase-messaging-sw.js] Error initializing Firebase:', error);
-  }
+    // Show the notification
+    return self.registration.showNotification(notificationTitle, notificationOptions);
+  });
+
+} catch (error) {
+  console.error('[firebase-messaging-sw.js] Error initializing Firebase:', error);
 }
-
-console.log('[firebase-messaging-sw.js] Service Worker loaded and waiting for config');
-
-// Handle push events (in case the above doesn't catch them)
-self.addEventListener('push', function(event) {
-  console.log('[firebase-messaging-sw.js] Push event received', event);
-  // Firebase Messaging should handle this automatically
-});
 
 // Handle notification clicks
 self.addEventListener('notificationclick', function(event) {
   console.log('[firebase-messaging-sw.js] Notification click received', event);
   event.notification.close();
-  
-  // Handle the click event
+
+  // Get the URL to open from the notification's data (if it exists)
+  const clickUrl = event.notification.data ? event.notification.data.url : '/';
+
+  // Open or focus the window
   event.waitUntil(
     clients.matchAll({type: 'window'}).then(function(clientList) {
       for (var i = 0; i < clientList.length; i++) {
         var client = clientList[i];
-        if (client.url === '/' && 'focus' in client) {
+        // If a window is already open at the target URL, focus it
+        if (client.url === clickUrl && 'focus' in client) {
           return client.focus();
         }
       }
+      // Otherwise, open a new window
       if (clients.openWindow) {
-        return clients.openWindow('/');
+        return clients.openWindow(clickUrl);
       }
     })
   );
 });
+
+// Note: You don't need a separate 'push' event listener.
+// The `messaging.onBackgroundMessage` handles it for you.
