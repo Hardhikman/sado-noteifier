@@ -1,5 +1,9 @@
 import SignUpForm from '../auth/signup';
 
 export default function SignUpPage() {
-  return <SignUpForm />;
+  return (
+    <div className="signin-page">
+      <SignUpForm />
+    </div>
+  );
 }

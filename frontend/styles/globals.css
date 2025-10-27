@@ -3,6 +3,7 @@
 @tailwind utilities;
 
 @import url('https://fonts.googleapis.com/css2?family=Playwrite+GB+S:ital,wght@0,100..400;1,100..400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
 
 :root {
   --background: 24.0 78.6% 92.5%;
@@ -57,6 +58,28 @@ body {
   color: hsl(var(--foreground));
   font-feature-settings: "rlig" 1, "calt" 1;
   font-family: 'Playwrite GB S', cursive;
+}
+
+/* Sign-in page specific font */
+.signin-page {
+  font-family: 'Roboto', sans-serif;
+}
+
+.signin-page h1, 
+.signin-page h2, 
+.signin-page h3, 
+.signin-page h4, 
+.signin-page h5, 
+.signin-page h6,
+.signin-page p, 
+.signin-page span, 
+.signin-page div, 
+.signin-page textarea, 
+.signin-page input, 
+.signin-page button, 
+.signin-page label, 
+.signin-page select {
+  font-family: 'Roboto', sans-serif;
 }
 
 /* Enhanced button hover effects */

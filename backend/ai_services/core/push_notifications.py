@@ -87,6 +87,7 @@ def get_user_subscriptions(user_id: str) -> List[Dict[Any, Any]]:
 
 def get_user_fcm_tokens(user_id):
     """Get all FCM tokens for a specific user"""
+    logger.info(f"[TOKEN] Retrieving FCM tokens for user {user_id}")
     try:
         response = supabase.table("push_subscriptions").select("fcm_token").eq("user_id", user_id).execute()
         # Handle both possible response formats
@@ -98,19 +99,22 @@ def get_user_fcm_tokens(user_id):
         
         if data:
             tokens = [item['fcm_token'] for item in data if item.get('fcm_token')]
-            logger.info(f"Found {len(tokens)} FCM tokens for user {user_id}")
+            logger.info(f"[TOKEN] Found {len(tokens)} FCM tokens for user {user_id}")
+            logger.debug(f"[TOKEN] Tokens: {[token[:20] + '...' for token in tokens]}")
             return tokens
         else:
-            logger.info(f"No FCM tokens found for user {user_id}")
+            logger.info(f"[TOKEN] No FCM tokens found for user {user_id}")
             return []
     except Exception as e:
-        logger.error(f"Error fetching FCM tokens for user {user_id}: {e}")
+        logger.error(f"[TOKEN] Error fetching FCM tokens for user {user_id}: {e}", exc_info=True)
         return []
 
 def send_push_notification_to_token(token, title, body, data=None):
     """Send a push notification to a specific FCM token"""
+    logger.info(f"[TOKEN_SEND] Sending push notification to token: {token[:20]}...")
+    
     if not FIREBASE_AVAILABLE or not firebase_initialized or messaging is None:
-        print("Firebase not available or not initialized. Cannot send FCM notifications.")
+        logger.error("[TOKEN_SEND] Firebase not available or not initialized. Cannot send FCM notifications.")
         return False
         
     try:
@@ -123,23 +127,25 @@ def send_push_notification_to_token(token, title, body, data=None):
             token=token,
         )
         
+        logger.debug(f"[TOKEN_SEND] Prepared message: {message}")
+        
         response = messaging.send(message)
-        logger.info(f"Successfully sent message: {response}")
+        logger.info(f"[TOKEN_SEND] Successfully sent message: {response}")
         return True
     except Exception as e:
-        logger.error(f"Error sending push notification: {e}")
+        logger.error(f"[TOKEN_SEND] Error sending push notification: {e}", exc_info=True)
         # Handle various FCM exceptions
         error_str = str(e)
         if "Unregistered" in error_str or "not registered" in error_str.lower():
-            logger.info(f"FCM token {token} is unregistered. Removing subscription.")
+            logger.info(f"[TOKEN_SEND] FCM token {token[:20]}... is unregistered. Removing subscription.")
             try:
                 supabase.table("push_subscriptions").delete().eq("fcm_token", token).execute()
             except Exception as delete_error:
-                logger.error(f"Error removing expired subscription: {delete_error}")
+                logger.error(f"[TOKEN_SEND] Error removing expired subscription: {delete_error}")
         elif "SenderIdMismatch" in error_str:
-            logger.warning(f"FCM token {token} has a sender ID mismatch.")
+            logger.warning(f"[TOKEN_SEND] FCM token {token[:20]}... has a sender ID mismatch.")
         elif "QuotaExceeded" in error_str:
-            logger.error("FCM quota exceeded.")
+            logger.error("[TOKEN_SEND] FCM quota exceeded.")
         return False
 
 def send_multicast_notification_to_tokens(tokens, title, body, data=None):
@@ -167,13 +173,18 @@ def send_multicast_notification_to_tokens(tokens, title, body, data=None):
 
 def send_push_notification(user_id: str, title: str, body: str, url: str = "/") -> bool:
     """Send a push notification to all of a user's devices using Firebase Cloud Messaging"""
+    logger.info(f"[PUSH] Attempting to send push notification to user {user_id}")
+    logger.info(f"[PUSH] Notification details - Title: {title}, Body: {body}, URL: {url}")
+    
     if not FIREBASE_AVAILABLE or not firebase_initialized or messaging is None:
-        print("Firebase not available or not initialized. Cannot send FCM notifications.")
+        logger.error("[PUSH] Firebase not available or not initialized. Cannot send FCM notifications.")
         return False
         
     tokens = get_user_fcm_tokens(user_id)
+    logger.info(f"[PUSH] Retrieved {len(tokens)} FCM tokens for user {user_id}")
+    
     if not tokens:
-        logger.info(f"No tokens found for user {user_id}")
+        logger.info(f"[PUSH] No tokens found for user {user_id}")
         return False
 
     # Prepare the notification payload
@@ -181,22 +192,27 @@ def send_push_notification(user_id: str, title: str, body: str, url: str = "/") 
         "url": url,
         "click_action": "FLUTTER_NOTIFICATION_CLICK"  # For web compatibility
     }
+    
+    logger.info(f"[PUSH] Prepared notification payload: title='{title}', body='{body}', data={data}")
 
     try:
         if len(tokens) == 1:
             # Single token - send single notification
+            logger.info(f"[PUSH] Sending single notification to token: {tokens[0][:20]}...")
             success = send_push_notification_to_token(tokens[0], title, body, data)
-            logger.info(f"Sent notification to user {user_id} (1 device)")
+            logger.info(f"[PUSH] Sent notification to user {user_id} (1 device) - Success: {success}")
             return success
         else:
             # Multiple tokens - send multicast notification
+            logger.info(f"[PUSH] Sending multicast notification to {len(tokens)} tokens")
             response = send_multicast_notification_to_tokens(tokens, title, body, data)
             if response is not None:
-                logger.info(f"Sent notification to user {user_id} ({len(tokens)} devices)")
+                success_count = getattr(response, 'success_count', 0) if response else 0
+                logger.info(f"[PUSH] Sent notification to user {user_id} ({len(tokens)} devices) - Success: {success_count}")
                 return hasattr(response, 'success_count') and response.success_count > 0
             return False
     except Exception as e:
-        logger.error(f"Error sending notification to user {user_id}: {e}")
+        logger.error(f"[PUSH] Error sending notification to user {user_id}: {e}", exc_info=True)
         return False
 
 def send_notification_to_multiple_users(user_ids, title, body, data=None):

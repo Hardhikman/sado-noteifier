@@ -37,6 +37,8 @@ class NotifyModel(BaseModel):
         return v
 
 def send_notification_job(user_id: str, note_id: int):
+    logger.info(f"[NOTIFY] Starting notification job for user {user_id}, note {note_id}")
+    
     # Check if notification has expired
     try:
         res = client.table("notification_settings").select("end_date").eq("note_id", note_id).execute()
@@ -62,6 +64,8 @@ def send_notification_job(user_id: str, note_id: int):
     data = getattr(res, 'data', res.get('data') if isinstance(res, dict) else None) if res else None
     note = data[0] if data and isinstance(data, list) and len(data) > 0 else None
     
+    logger.info(f"[NOTIFY] Retrieved note data: {note}")
+    
     # Send push notification
     if note:
         title = "Note Reminder"
@@ -73,6 +77,9 @@ def send_notification_job(user_id: str, note_id: int):
             body = f"{note.get('title', 'Untitled Note')}: {truncated_summary}"
         else:
             body = f"Reminder for note: {note.get('title') if note else note_id}"
+        
+        logger.info(f"[NOTIFY] Preparing to send notification - Title: {title}, Body: {body}")
+        
         # Import here to avoid circular imports
         from ai_services.core.push_notifications import send_push_notification
         success = send_push_notification(user_id, title, body, f"/editor?id={note_id}")
@@ -81,7 +88,7 @@ def send_notification_job(user_id: str, note_id: int):
         else:
             logger.warning(f"[NOTIFY] Failed to send push notification to user {user_id} about note: {note.get('title') if note else note_id}")
     else:
-        logger.info(f"[NOTIFY] Notify user {user_id} about note: {note_id}")
+        logger.info(f"[NOTIFY] No note found for note_id {note_id}")
 
 # -----------------------------
 
