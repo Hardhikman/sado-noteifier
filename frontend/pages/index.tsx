@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
+import Image from 'next/image';
 import { Button } from "@/components/retroui/Button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/retroui/Card"
 import { 
@@ -85,13 +86,27 @@ export default function HomePage() {
             </DropdownMenu>
           </div>
           <div 
-            className="brand text-xl sm:text-2xl font-bold text-gray-800 cursor-pointer transition-colors"
+            className="brand text-xl sm:text-2xl font-bold text-gray-800 cursor-pointer transition-colors flex items-center gap-2"
             onClick={() => router.push('/')}
             style={{ fontFamily: "'Playwrite GB S', cursive" }}
           >
-            SaDo Noteifier
+            <div className="logo-container">
+              <img 
+                src="/sado_logo.png" 
+                alt="SaDo Logo" 
+                className="logo-image"
+              />
+            </div>
           </div>
-          <div className="header-right">
+          <div className="header-right flex items-center gap-2">
+            <Button 
+              variant="outline" 
+              className="flex items-center justify-center bg-[#efa3a0] hover:bg-[#e89290] text-white relative z-10 w-auto h-8 sm:h-10 px-3 py-1 rounded-full"
+              onClick={() => router.push('/about')}
+              title="About SaDO Noteifier"
+            >
+              <span className="text-xs sm:text-sm">About</span>
+            </Button>
             <Button 
               variant="outline" 
               className="flex items-center justify-center bg-[#efa3a0] hover:bg-[#e89290] text-white relative z-10 w-8 h-8 sm:w-10 sm:h-10 p-0 rounded-full"

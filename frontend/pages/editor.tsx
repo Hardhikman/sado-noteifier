@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
+import Image from 'next/image';
 import { Button } from "@/components/retroui/Button"
 import { 
   DropdownMenu, 
@@ -180,79 +181,95 @@ export default function EditorPage() {
             <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5" />
           </button>
           
-          <Card className="flex-1 shadow-lg bg-white/80 backdrop-blur-sm border border-white/30 w-full mt-8">
-            <CardContent className="space-y-4 sm:space-y-6">
-              {/* Save button inside the card, moved down */}
-              <div className="flex justify-end mt-4">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button className="flex items-center gap-1 bg-[#efa3a0] hover:bg-[#e89290] text-white px-3 py-1.5 text-sm">
-                      Save
-                      <ChevronDown className="h-3 w-3" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="flex flex-row w-auto p-1 min-w-[100px] mt-2 bg-white border-0 shadow-lg">
-                    <Tooltip.Provider>
-                      <Tooltip.Trigger asChild>
-                        <DropdownMenuItem 
-                          onClick={() => handleSave(false)}
-                          className="flex flex-col items-center justify-center gap-1 py-2 px-2 rounded hover:bg-gray-100"
-                        >
-                          <div className="flex items-center justify-center w-8 h-8 rounded-full bg-green-100 text-green-600">
-                            <Save className="h-4 w-4" />
-                          </div>
-                        </DropdownMenuItem>
-                      </Tooltip.Trigger>
-                      <Tooltip.Content>
-                        Save Only
-                      </Tooltip.Content>
-                    </Tooltip.Provider>
-                    
-                    <Tooltip.Provider>
-                      <Tooltip.Trigger asChild>
-                        <DropdownMenuItem 
-                          onClick={() => {
-                            // Show notification dialog when user selects "Notify"
-                            setShowNotificationDialog(true);
-                          }}
-                          className="flex flex-col items-center justify-center gap-1 py-2 px-2 rounded hover:bg-gray-100"
-                        >
-                          <div className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600">
-                            <Bell className="h-4 w-4" />
-                          </div>
-                        </DropdownMenuItem>
-                      </Tooltip.Trigger>
-                      <Tooltip.Content>
-                        Save with Notification
-                      </Tooltip.Content>
-                    </Tooltip.Provider>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-              
-              <div className="space-y-2">
-                <input
-                  id="title"
-                  className="w-full p-3 sm:p-4 text-lg sm:text-xl md:text-2xl font-bold border border-gray-200 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/50 backdrop-blur-sm"
-                  placeholder="Note Title"
-                  value={title}
-                  onChange={e => setTitle(e.target.value)}
-                  style={{ color: '#493129', fontFamily: "'Playwrite GB S', cursive" }}
+          <div className="flex-1 w-full">
+            {/* Brand logo */}
+            <div 
+              className="flex items-center justify-center mb-4 cursor-pointer"
+              onClick={() => router.push('/')}
+            >
+              <div className="logo-container">
+                <img 
+                  src="/sado_logo.png" 
+                  alt="SaDo Logo" 
+                  className="logo-image"
                 />
               </div>
-              
-              <div className="space-y-2">
-                <textarea
-                  id="content"
-                  className="w-full h-64 sm:h-80 md:h-96 p-3 sm:p-4 text-sm sm:text-base md:text-lg border border-gray-200 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none bg-white/50 backdrop-blur-sm"
-                  placeholder="Start writing your note here..."
-                  value={content}
-                  onChange={e => setContent(e.target.value)}
-                  style={{ color: '#493129', fontFamily: "'Playwrite GB S', cursive" }}
-                />
-              </div>
-            </CardContent>
-          </Card>
+            </div>
+            
+            <Card className="shadow-lg bg-white/80 backdrop-blur-sm border border-white/30 w-full">
+              <CardContent className="space-y-4 sm:space-y-6">
+                {/* Save button inside the card, moved down */}
+                <div className="flex justify-end mt-4">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button className="flex items-center gap-1 bg-[#efa3a0] hover:bg-[#e89290] text-white px-3 py-1.5 text-sm">
+                        Save
+                        <ChevronDown className="h-3 w-3" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="flex flex-row w-auto p-1 min-w-[100px] mt-2 bg-white border-0 shadow-lg">
+                      <Tooltip.Provider>
+                        <Tooltip.Trigger asChild>
+                          <DropdownMenuItem 
+                            onClick={() => handleSave(false)}
+                            className="flex flex-col items-center justify-center gap-1 py-2 px-2 rounded hover:bg-gray-100"
+                          >
+                            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-green-100 text-green-600">
+                              <Save className="h-4 w-4" />
+                            </div>
+                          </DropdownMenuItem>
+                        </Tooltip.Trigger>
+                        <Tooltip.Content>
+                          Save Only
+                        </Tooltip.Content>
+                      </Tooltip.Provider>
+                      
+                      <Tooltip.Provider>
+                        <Tooltip.Trigger asChild>
+                          <DropdownMenuItem 
+                            onClick={() => {
+                              // Show notification dialog when user selects "Notify"
+                              setShowNotificationDialog(true);
+                            }}
+                            className="flex flex-col items-center justify-center gap-1 py-2 px-2 rounded hover:bg-gray-100"
+                          >
+                            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600">
+                              <Bell className="h-4 w-4" />
+                            </div>
+                          </DropdownMenuItem>
+                        </Tooltip.Trigger>
+                        <Tooltip.Content>
+                          Save with Notification
+                        </Tooltip.Content>
+                      </Tooltip.Provider>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+                
+                <div className="space-y-2">
+                  <input
+                    id="title"
+                    className="w-full p-3 sm:p-4 text-lg sm:text-xl md:text-2xl font-bold border border-gray-200 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/50 backdrop-blur-sm"
+                    placeholder="Note Title"
+                    value={title}
+                    onChange={e => setTitle(e.target.value)}
+                    style={{ color: '#493129', fontFamily: "'Playwrite GB S', cursive" }}
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <textarea
+                    id="content"
+                    className="w-full h-64 sm:h-80 md:h-96 p-3 sm:p-4 text-sm sm:text-base md:text-lg border border-gray-200 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none bg-white/50 backdrop-blur-sm"
+                    placeholder="Start writing your note here..."
+                    value={content}
+                    onChange={e => setContent(e.target.value)}
+                    style={{ color: '#493129', fontFamily: "'Playwrite GB S', cursive" }}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
       
