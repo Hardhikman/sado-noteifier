@@ -2,6 +2,7 @@ import { useRouter } from 'next/router';
 import { Button } from "@/components/retroui/Button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/retroui/Card"
 import { ArrowLeft } from 'lucide-react';
+import { SadoLogo } from '../components/SadoLogo';
 
 export default function AboutPage() {
   const router = useRouter();
@@ -35,16 +36,12 @@ export default function AboutPage() {
           <CardHeader>
             <CardTitle className="text-2xl sm:text-3xl font-bold text-center">
               {/* Logo with "About" text beside it */}
-              <div className="flex items-center justify-center gap-4">
+              <div className="flex items-center justify-center gap-8">
                 <span className="text-2xl sm:text-3xl font-bold" style={{ fontFamily: "'Playwrite GB S', cursive" }}>
                   About
                 </span>
                 <div className="logo-container">
-                  <img 
-                    src="/sado_logo.png" 
-                    alt="SaDo Logo" 
-                    className="logo-image"
-                  />
+                  <SadoLogo />
                 </div>
               </div>
             </CardTitle>

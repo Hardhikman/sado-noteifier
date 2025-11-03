@@ -256,20 +256,16 @@ h1, h2, h3, h4, h5, h6, p, span, div, textarea, input, button, label, select {
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 64px;
+  height: 85px;
 }
 
 .logo-image {
-  display: block !important;
-  width: 64px !important;
-  height: 85px !important;
-  object-fit: contain !important;
+  display: none !important;
 }
 
-@media (min-width: 640px) {
-  .logo-image {
-    width: 64px !important;
-    height: 85px !important;
-  }
+.css-logo {
+  display: none !important;
 }
 
 /* Responsive grid adjustments */

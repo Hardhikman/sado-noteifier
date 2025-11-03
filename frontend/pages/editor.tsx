@@ -19,6 +19,7 @@ import { useNotification } from '../hooks/useNotification';
 import { createNote, updateNote, getNoteById } from '../lib/api';
 import { supabase } from '../lib/supabase';
 import { ChevronDown, Save, Bell, ArrowLeft, User, LogOut } from 'lucide-react';
+import { SadoLogo } from '../components/SadoLogo'; // Add this import
 
 export default function EditorPage() {
   const router = useRouter();
@@ -188,11 +189,7 @@ export default function EditorPage() {
               onClick={() => router.push('/')}
             >
               <div className="logo-container">
-                <img 
-                  src="/sado_logo.png" 
-                  alt="SaDo Logo" 
-                  className="logo-image"
-                />
+                <SadoLogo />
               </div>
             </div>
             

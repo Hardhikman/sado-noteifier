@@ -14,6 +14,7 @@ import {
 import { useAuth } from '../hooks/useAuth';
 import { fetchNotesForUser, deleteNote } from '../lib/api';
 import { Bell, Plus, LogOut, PlusCircle, User, ChevronDown, ArrowUpDown } from 'lucide-react';
+import { SadoLogo } from '../components/SadoLogo';
 
 export default function HomePage() {
   const { user, loading, signOut } = useAuth();
@@ -91,11 +92,7 @@ export default function HomePage() {
             style={{ fontFamily: "'Playwrite GB S', cursive" }}
           >
             <div className="logo-container">
-              <img 
-                src="/sado_logo.png" 
-                alt="SaDo Logo" 
-                className="logo-image"
-              />
+              <SadoLogo />
             </div>
           </div>
           <div className="header-right flex items-center gap-2">
