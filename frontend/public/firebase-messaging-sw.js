@@ -6,12 +6,12 @@ importScripts('https://www.gstatic.com/firebasejs/9.1.3/firebase-messaging-compa
 
 // --- CRITICAL FIX ---1. Add your real Firebase config here.This MUST be hardcoded.
 const firebaseConfig = {
-  apiKey: "AIzaSyBH_IpUH6iDqVEcUinUw6pgzDkgVPBBtxc",
+  apiKey: "AIzaSyA2t1WQzZkdoZ-QFFmV_F61Ou-WE31OMm4",
   authDomain: "sa-do-9c91e.firebaseapp.com",
   projectId: "sa-do-9c91e",
-  storageBucket: "sa-do-9c91e.appspot.com",
+  storageBucket: "sa-do-9c91e.firebasestorage.app",
   messagingSenderId: "362095722321",
-  appId: "1:362095722321:web:2126ab124ade004082c60b"
+  appId: "1:362095722321:web:b6b81e74a5e593eb65dd70"
 };
 
 // --- CRITICAL FIX --- 2. Initialize Firebase immediately when the worker starts.Do NOT wait for a message from the main app.

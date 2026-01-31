@@ -117,6 +117,7 @@ Never commit your actual `.env` or `.env.local` files to version control. The `.
    - Generate a new private key
    - For security, convert the JSON content to an environment variable:
      - `FIREBASE_SERVICE_ACCOUNT_KEY={"type":"service_account",...}`
+     - **Note**: Ensure the entire JSON is on a single line with no line breaks.
 
 ### Push Notification Setup
 The application now uses Firebase Cloud Messaging (FCM) instead of the traditional Web Push API. Follow the Firebase Setup instructions in the previous section.
@@ -155,7 +156,7 @@ To test the push notification functionality:
 2. Open the application in a browser that supports push notifications (Chrome, Firefox, Edge)
 3. Create a note with notifications enabled
 4. Manually trigger a notification by calling the notification job endpoint or wait for the scheduled time
-5. For background notification support, ensure the service worker (`public/sw.js`) is properly configured and deployed
+5. For background notification support, ensure the service worker (`public/firebase-messaging-sw.js`) has its hardcoded `firebaseConfig` updated to match your project variables. Service workers do not automatically inherit environment variables from the main application.
 
 ## Deployment
 
@@ -190,6 +191,7 @@ Once the backend is running, visit `http://localhost:8000/swagger` for API docum
 - `POST /notifications/unsubscribe` - Unsubscribe from FCM notifications
 
 ## Project Structure
+- `docs/` - Project documentation files
 - `backend/` - FastAPI backend with Supabase integration
   - `ai_services/` - AI-powered features using Google Gemini
   - `core/` - Core services (Supabase client, note saver, push notifications)

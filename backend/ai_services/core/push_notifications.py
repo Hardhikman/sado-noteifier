@@ -15,49 +15,24 @@ messaging = None
 try:
     import firebase_admin
     from firebase_admin import credentials, messaging
+    from .firebase_admin import initialize_firebase
     FIREBASE_AVAILABLE = True
 except ImportError:
     print("Firebase Admin SDK not available. Install firebase-admin to enable FCM notifications.")
+    FIREBASE_AVAILABLE = False
 
 # Initialize Supabase client
 supabase_url = os.getenv("SUPABASE_URL", "")
 supabase_key = os.getenv("SUPABASE_KEY", "")
 supabase: Client = create_client(supabase_url, supabase_key)
 
-# Initialize Firebase Admin SDK
+# Initialize Firebase Admin SDK using centralized logic
 firebase_initialized = False
-if FIREBASE_AVAILABLE and firebase_admin is not None:
+if FIREBASE_AVAILABLE:
     try:
-        if not firebase_admin._apps:
-            # Try to initialize with default credentials (for development)
-            # In production, you would use a service account key file
-            try:
-                if credentials is not None:
-                    # Option 1: Use service account key file
-                    cred_path = os.getenv('GOOGLE_APPLICATION_CREDENTIALS')
-                    if cred_path and os.path.exists(cred_path):
-                        cred = credentials.Certificate(cred_path)
-                        firebase_admin.initialize_app(cred)
-                        print("Firebase Admin initialized with service account file")
-                    # Option 2: Use service account key JSON string
-                    elif os.getenv('FIREBASE_SERVICE_ACCOUNT_KEY'):
-                        cred_json = os.getenv('FIREBASE_SERVICE_ACCOUNT_KEY')
-                        if cred_json:
-                            cred_dict = json.loads(cred_json)
-                            cred = credentials.Certificate(cred_dict)
-                            firebase_admin.initialize_app(cred)
-                        print("Firebase Admin initialized with service account JSON")
-                    # Option 3: Use default credentials (for some hosting environments)
-                    else:
-                        cred = credentials.ApplicationDefault()
-                        firebase_admin.initialize_app(cred)
-                        print("Firebase Admin initialized with default credentials")
-            except ValueError:
-                # If default credentials don't work, initialize without credentials for now
-                # You'll need to add a service account key file for production
-                firebase_admin.initialize_app()
+        initialize_firebase()
         firebase_initialized = True
-        print("Firebase Admin SDK initialized successfully")
+        print("Firebase Admin SDK initialized successfully via centralized module")
     except Exception as e:
         print(f"Error initializing Firebase Admin SDK: {e}")
 

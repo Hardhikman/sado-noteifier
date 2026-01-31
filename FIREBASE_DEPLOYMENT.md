@@ -68,6 +68,9 @@ GOOGLE_APPLICATION_CREDENTIALS=/path/to/service-account-key.json
 FIREBASE_SERVICE_ACCOUNT_KEY={"type":"service_account","project_id":"your-project-id",...}
 ```
 
+> [!IMPORTANT]
+> The `FIREBASE_SERVICE_ACCOUNT_KEY` value MUST be a single-line JSON string without line breaks to be parsed correctly by the backend.
+
 ### Service Account Key
 Place the service account JSON file in a secure location on your server and reference it with `GOOGLE_APPLICATION_CREDENTIALS`.
 
@@ -87,6 +90,9 @@ Ensure your backend allows CORS requests from your production frontend domain.
 Ensure the following files are accessible at the root of your domain:
 - `/sw.js` - Main service worker
 - `/firebase-messaging-sw.js` - Firebase messaging service worker
+
+> [!WARNING]
+> You MUST manually update the `firebaseConfig` object in `frontend/public/firebase-messaging-sw.js` with your production project credentials. Service workers cannot automatically access environment variables at runtime.
 
 ### Service Worker Registration
 The service workers should be automatically registered by the application code.
